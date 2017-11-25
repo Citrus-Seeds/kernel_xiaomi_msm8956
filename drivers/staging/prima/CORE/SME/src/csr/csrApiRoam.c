@@ -2002,6 +2002,7 @@ eHalStatus csrChangeDefaultConfigParam(tpAniSirGlobal pMac, tCsrConfigParam *pPa
         pMac->scan.fValidateList = pParam->fValidateList;
         pMac->scan.fEnableBypass11d = pParam->fEnableBypass11d;
         pMac->scan.fEnableDFSChnlScan = pParam->fEnableDFSChnlScan;
+        pMac->scan.disable_scan_during_sco = pParam->disable_scan_during_sco;
         pMac->scan.scanResultCfgAgingTime = pParam->scanCfgAgingTime;
         pMac->roam.configParam.fScanTwice = pParam->fScanTwice;
         pMac->scan.fFirstScanOnly2GChnl = pParam->fFirstScanOnly2GChnl;
@@ -2142,6 +2143,7 @@ eHalStatus csrGetConfigParam(tpAniSirGlobal pMac, tCsrConfigParam *pParam)
         pParam->fValidateList = pMac->roam.configParam.fValidateList;
         pParam->fEnableBypass11d = pMac->scan.fEnableBypass11d;
         pParam->fEnableDFSChnlScan = pMac->scan.fEnableDFSChnlScan;
+        pParam->disable_scan_during_sco = pMac->scan.disable_scan_during_sco;
         pParam->fScanTwice = pMac->roam.configParam.fScanTwice;
         pParam->fFirstScanOnly2GChnl = pMac->scan.fFirstScanOnly2GChnl;
         pParam->fEnableMCCMode = pMac->roam.configParam.fenableMCCMode;
@@ -5608,10 +5610,12 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
         case eCsrReassocSuccess:
             if(eCsrReassocSuccess == Result)
             {
+                roamInfo.reassoc = true;
                 ind_qos = SME_QOS_CSR_REASSOC_COMPLETE;
             }
             else
             {
+                roamInfo.reassoc = false;
                 ind_qos = SME_QOS_CSR_ASSOC_COMPLETE;
             }
             // Success Join Response from LIM.  Tell NDIS we are connected and save the
@@ -5817,6 +5821,12 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
                     roamInfo.ucastSig = ( tANI_U8 )pJoinRsp->ucastSig;
                     roamInfo.bcastSig = ( tANI_U8 )pJoinRsp->bcastSig;
                     roamInfo.maxRateFlags = pJoinRsp->maxRateFlags;
+                    roamInfo.vht_caps = pJoinRsp->vht_caps;
+                    roamInfo.ht_caps = pJoinRsp->ht_caps;
+                    roamInfo.hs20vendor_ie = pJoinRsp->hs20vendor_ie;
+                    roamInfo.ht_operation = pJoinRsp->ht_operation;
+                    roamInfo.vht_operation = pJoinRsp->vht_operation;
+
                 }
                 else
                 {
